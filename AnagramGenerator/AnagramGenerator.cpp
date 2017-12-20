@@ -9,18 +9,14 @@ Write an application that generates all permutations for a given word or phrase 
 
 #include "stdafx.h"
 
-//#define _CRTDBG_MAP_ALLOC  
-//#include <stdlib.h>  
-//#include <crtdbg.h>  
-
 #include <memory>
 #include <iostream>
 #include <fstream>
 #include <string.h>
 
 #define MAX_STR 100
-#define CLEN 120
 #define LETTERSINALPHA 26
+#define MAX_DIC 50
 
 using namespace std;
 
@@ -28,6 +24,41 @@ char* permutations = NULL;
 char* phrase = NULL;
 char *unsortedInput = NULL;
 char* sortedString = NULL;
+char *results = NULL;
+
+void 	DereferenceAllocatedMemory()
+{
+	//dereferences a pointers to allocated memory
+	if (results != NULL)
+	{
+		delete[] results;
+		results = NULL;
+	}
+
+	if (permutations != NULL)
+	{
+		delete[]permutations;
+		permutations = NULL;
+	}
+
+	if (sortedString != NULL)
+	{
+		delete[]sortedString;
+		sortedString = NULL;
+	}
+
+	if (unsortedInput != NULL)
+	{
+		delete[]unsortedInput;
+		unsortedInput = NULL;
+	}
+
+	if (phrase != NULL)
+	{
+		delete[]phrase;
+		phrase = NULL;
+	}
+};
 
 int Factorial(int n)
 {
@@ -41,16 +72,6 @@ int Factorial(int n)
 	}
 
 	return value;
-}
-
-//Swap to char within char array
-void TempSwap(char*t, int a, int b)
-{
-	char temp;
-
-	temp = t[a];
-	t[a] = t[b];
-	t[b] = temp;
 }
 
 struct PhraseChar {
@@ -151,7 +172,7 @@ void Permutation(char s[], int sl, int count[], char res[], int lev, const int s
 {
 	if (lev == sl)
 	{
-		cout << "Result:\t" << res << endl;
+		cout << "Permutation:\t" << res << endl;
 		StoreResult(res, sl, size);
 
 		return;
@@ -173,36 +194,69 @@ void Permutation(char s[], int sl, int count[], char res[], int lev, const int s
 
 int main(int argc, char* argv[])
 {
-	cout << "Anagram Generator\n";
+	cout << "Anagram Generator" << endl;
 
 	// Get Phase from command line
 	if (argc < 2)
-		// No phrase seen from the command line
+	{
+		cout << "// No phrase seen from the command line" << endl;
+		getchar();
+
+		DereferenceAllocatedMemory();
 		return EXIT_FAILURE;
+	}
 
 	for (int i = 0; i < argc; i++)
 		cout << "Argument from command line[" << i << "]\t" <<  argv[i] << endl;
-
-	//Define phrase variable from the heap
+	
 	const int phraseLength = strlen(argv[1]);
 
-	phrase = new char[MAX_STR];
-	memset(phrase, 0, MAX_STR);
+	try
+	{
+		//define phrase variable from the heap
+		phrase = new char[MAX_STR];
+		memset(phrase, 0, MAX_STR);
 
-	strcpy(phrase, argv[1]);
-
-	cout << "\nGot Phase:\t" << phrase << endl;
+		strcpy(phrase, argv[1]);
+		cout << "\nGot Phase:\t" << phrase << endl;
+	}
+	catch (const::bad_alloc& e)
+	{
+		cout << "Allocation failed (phrase): " << e.what() << endl;
+		getchar();
+		return EXIT_FAILURE;
+	}
 	
-	//Sort Phrase character
-	unsortedInput = new char[MAX_STR];
-	memset(unsortedInput, 0, MAX_STR);
+	try
+	{
+		//Sort Phrase characters
+		unsortedInput = new char[MAX_STR];
+		memset(unsortedInput, 0, MAX_STR);
+	}
+	catch (const::bad_alloc& e)
+	{
+		cout << "Allocation failed (unsortedInput): " << e.what() << endl;
+		getchar();
 
-	sortedString = new char[MAX_STR];
-	memset(sortedString, 0, MAX_STR);
+		DereferenceAllocatedMemory();
+		return EXIT_FAILURE;
+	}
 
-	strcpy(unsortedInput, phrase);
+	try
+	{
+		sortedString = new char[MAX_STR];
+		memset(sortedString, 0, MAX_STR);
+		strcpy(unsortedInput, phrase);
+		SortString(sortedString, unsortedInput, strlen(unsortedInput));
+	}
+	catch (const::bad_alloc& e)
+	{
+		cout << "Allocation failed (sortedString): " << e.what() << endl;
+		getchar();
 
-	SortString(sortedString, unsortedInput, strlen(unsortedInput));
+		DereferenceAllocatedMemory();
+		return EXIT_FAILURE;
+	}
 
 	cout << "Unsorted String:\t" << unsortedInput << endl;
 	cout << "Sorted String:     \t" << sortedString << endl;
@@ -214,30 +268,50 @@ int main(int argc, char* argv[])
 
 	countsl = CountChar(phraseChars, sortedString, strlen(sortedString), charCount);
 
-	//Determine denominator for no. of permutations calculations
-
 	int permutationDenominator = 1;
+	//Determine denominator for no. of permutations calculations
 	for (int i = 0; i < charCount; i++)
 	{
 		permutationDenominator = permutationDenominator * Factorial(phraseChars[i].count);
 	}
 
-	const int numberOfPermutations = Factorial(phraseLength)/ permutationDenominator;
+	//determine number of permutations
+	const int numberOfPermutations = Factorial(phraseLength) / permutationDenominator;
 
-	permutations = new char[MAX_STR * (numberOfPermutations+1) ];
-	memset(permutations, 0, MAX_STR * (numberOfPermutations + 1));
+	try
+	{
+		//create heap based arrays to hold permutations
+		permutations = new char[MAX_STR * (numberOfPermutations + 1)];
+		memset(permutations, 0, MAX_STR * (numberOfPermutations + 1));
 
-	int startIndex = 0;
-	int endIndex = phraseLength - 1;
+		//display characters from phrase
+		ShowPhraseChars(phraseChars);
+	}
+	catch (const::bad_alloc& e)
+	{
+		cout << "Allocation failed (permutations): " << e.what() << endl;
+		getchar();
 
-	int noofchar = 0;
-		
-	ShowPhraseChars(phraseChars);
-
+		DereferenceAllocatedMemory();
+		return EXIT_FAILURE;
+	}
+	//determine permutations from sorted list of characters
 	char tempStr[LETTERSINALPHA] = { 0 };
 	int tempCount[LETTERSINALPHA] = { 0 };
-	char *results = new char[numberOfPermutations];
-	memset(results, 0, numberOfPermutations);
+
+	try
+	{
+		results = new char[numberOfPermutations];
+		memset(results, 0, numberOfPermutations);
+	}
+	catch (const::bad_alloc& e)
+	{
+		cout << "Allocation failed (results): " << e.what() << endl;
+		getchar();
+
+		DereferenceAllocatedMemory();
+		return EXIT_FAILURE;
+	}
 
 	int level = 0;
 
@@ -247,28 +321,41 @@ int main(int argc, char* argv[])
 		tempCount[pi] = phraseChars[pi].count;
 	}
 
-
+	//recursive function that determines permutations (lexicographical ordering)
 	Permutation(tempStr, countsl, tempCount, results, level, MAX_STR);
 	
-	// Open Dictionary
+	// Open "dictionary" file
 
-	char dword[50] = { 0 };
+	// dword and pword used for pattern matching
+	char dword[MAX_DIC] = { 0 };
 	char pword[MAX_STR] = { 0 };
+
+	//pointer to the permutations generated from the input phrase
 	char* p;
 	p = (char*)permutations;
 
-	ifstream iFile;
-	iFile.open("dictionary1.txt");
-
-	if (!iFile)
-		return EXIT_FAILURE;
-
+	//indexes to permutation list and dictionary 
 	int pi = 0;
 	int di = 0;
 
+	//input file "dictionary" (sample used for testing software)
+	ifstream iFile;
+	iFile.open("dictionary.txt");
+
+	//upon failure to open file exit main with failure
+	if (!iFile)
+	{
+		cout << "dictionary file failed to open!" << endl;
+		getchar();
+
+		DereferenceAllocatedMemory();
+		return EXIT_FAILURE;
+	}
+
+	//look through "dictionary" matching each permutation with read word from file
 	while (!iFile.eof())
 	{		
-		memset(dword, 0, 50);
+		memset(dword, 0, MAX_DIC);
 		iFile >> dword;
 		do
 		{
@@ -288,28 +375,14 @@ int main(int argc, char* argv[])
 		di++;
 	}
 
+	//close "Dictionary" file
 	iFile.close();
 	
-	delete[] results;
+	DereferenceAllocatedMemory();
 
-	delete []permutations;
-
-
-	delete []sortedString;
-	delete []unsortedInput;
-	delete []phrase;
-
-	results = NULL;
-	//permutations = NULL;
-
-//	sortedString = NULL;
-//	unsortedInput = NULL;
-	phrase = NULL;
-
+	//pause command window until a key is pressed
 	getchar();
-
-	_CrtDumpMemoryLeaks();
-
-    return 0;
+	
+    return EXIT_FAILURE;
 }
 
