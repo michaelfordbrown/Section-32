@@ -224,21 +224,56 @@ void CheckPermutationsAgainstDictionary()
 		throw EXIT_FAILURE;
 	}
 
+
+	bool bPatternMatch = false;
+	int dci = 0;
+
 	//look through "dictionary" matching each permutation with read word from file
 	while (!dictionaryInfile.eof())
 	{
 		memset(dword, 0, MAX_DIC);
-		dictionaryInfile >> dword;
 
-		while (!permutationsInfile.eof())
+		dictionaryInfile >> dword;
+		//cout << "Read Dic:" << dword << endl;
+		bPatternMatch = false;
+		while (!permutationsInfile.eof() && (strlen(dword) > 0) && !bPatternMatch)
 		{
+			//bPatternMatch = false;
 			memset(pword, 0, phraseLength + 1);
 			permutationsInfile >> pword;
+			
+			dci = 0;
+			int pcl = strlen(pword);
+			int dcl = strlen(dword);
 
-			if (strcmp(dword, pword) == 0)
+			int pci = 0;
+			int dci = 0;
+
+			//cout << "Looking for pattern: " << dword << " in string " << pword << endl;
+
+			for (pci = 0; pci < pcl; pci++)
 			{
-				cout << "Dictionary Word[" << di << "] Matches Phrase Word [" << pi << "]\t" << pword << endl;
+				for (dci = 0; (dci < dcl) && ((pci + dci) < pcl); dci++)
+				{
+					if (pword[dci + pci] != dword[dci])
+					{
+						bPatternMatch = false;
+						break;
+					}
+				}
+				if (dci == dcl)
+				{
+					bPatternMatch = true;
+					//if (strcmp(dword, pword) == 0)
+					if (bPatternMatch)
+					{
+						cout << "Dictionary Word[" << di << "] " << dword << " Matches Phrase Word [" << pi << "]\t" << pword << endl;
+						break;
+					}
+				}
 			}
+
+
 			pi++;
 		}
 
