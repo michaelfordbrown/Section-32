@@ -32,6 +32,18 @@ char *pword = NULL;
 
 ofstream permutationsOutfile;
 
+struct PhraseChar {
+	char character = 0;
+	int count = 0;
+};
+
+int phraseLength = 0;
+PhraseChar phraseChars[LETTERSINALPHA];
+int charCount = 0;
+int countsl = 0;
+
+int CountChar(PhraseChar *p, const char *s, int strlen, int& cc);
+
 void 	DereferenceAllocatedMemory()
 {
 	//dereferences a pointers to allocated memory
@@ -64,6 +76,7 @@ void 	DereferenceAllocatedMemory()
 		delete[] pword;
 		pword = NULL;
 	}
+
 };
 
 int Factorial(int n)
@@ -80,10 +93,6 @@ int Factorial(int n)
 	return value;
 }
 
-struct PhraseChar {
-	char character = 0;
-	int count = 0;
-};
 
 int CountChar(PhraseChar *p, const char *s, int strlen, int& cc)
 {
@@ -182,136 +191,14 @@ void Permutation(char s[], int sl, int count[], char res[], int lev, const int s
 	}
 }
 
-int main(int argc, char* argv[])
+
+void CheckPermutationsAgainstDictionary()
 {
-	cout << "Anagram Generator" << endl;
-
-	// Get Phase from command line
-	if (argc < 2)
-	{
-		cout << "// No phrase seen from the command line" << endl;
-		getchar();
-
-		DereferenceAllocatedMemory();
-		return EXIT_FAILURE;
-	}
-
-	for (int i = 0; i < argc; i++)
-		cout << "Argument from command line[" << i << "]\t" <<  argv[i] << endl;
-	
-	const int phraseLength = strlen(argv[1]);
-
-	try
-	{
-		//define phrase variable from the heap
-		phrase = new char[phraseLength + 1];
-		memset(phrase, 0, phraseLength + 1);
-
-		strcpy(phrase, argv[1]);
-		cout << "\nGot Phase:\t" << phrase << endl;
-	}
-	catch (const::bad_alloc& e)
-	{
-		cout << "Allocation failed (phrase): " << e.what() << endl;
-		getchar();
-		return EXIT_FAILURE;
-	}
-	
-	try
-	{
-		//Sort Phrase characters
-		unsortedInput = new char[phraseLength + 1];
-		memset(unsortedInput, 0, phraseLength + 1);
-	}
-	catch (const::bad_alloc& e)
-	{
-		cout << "Allocation failed (unsortedInput): " << e.what() << endl;
-		getchar();
-
-		DereferenceAllocatedMemory();
-		return EXIT_FAILURE;
-	}
-
-	try
-	{
-		sortedString = new char[phraseLength + 1];
-		memset(sortedString, 0, phraseLength + 1);
-		strcpy(unsortedInput, phrase);
-		SortString(sortedString, unsortedInput, strlen(unsortedInput));
-	}
-	catch (const::bad_alloc& e)
-	{
-		cout << "Allocation failed (sortedString): " << e.what() << endl;
-		getchar();
-
-		DereferenceAllocatedMemory();
-		return EXIT_FAILURE;
-	}
-
-	cout << "Unsorted String:\t" << unsortedInput << endl;
-	cout << "Sorted String:     \t" << sortedString << endl;
-
-	//Count Phrase alphabetical characters
-	int countsl = 0;
-	int charCount = 0;
-	PhraseChar phraseChars[LETTERSINALPHA];
-
-	countsl = CountChar(phraseChars, sortedString, strlen(sortedString), charCount);
-
-	int permutationDenominator = 1;
-	//Determine denominator for no. of permutations calculations
-	for (int i = 0; i < charCount; i++)
-	{
-		permutationDenominator = permutationDenominator * Factorial(phraseChars[i].count);
-	}
-
-	//determine number of permutations
-	const int numberOfPermutations = Factorial(phraseLength) / permutationDenominator;
-
-	//determine permutations from sorted list of characters
-	char tempStr[LETTERSINALPHA] = { 0 };
-	int tempCount[LETTERSINALPHA] = { 0 };
-
-	try
-	{
-		results = new char[phraseLength + 1];
-		memset(results, 0, phraseLength + 1);
-	}
-	catch (const::bad_alloc& e)
-	{
-		cout << "Allocation failed (results): " << e.what() << endl;
-		getchar();
-
-		DereferenceAllocatedMemory();
-		return EXIT_FAILURE;
-	}
-
-	int level = 0;
-
-	for (int pi = 0; pi < charCount; pi++)
-	{
-		tempStr[pi] = phraseChars[pi].character;
-		tempCount[pi] = phraseChars[pi].count;
-	}
-
-	//recursive function that determines permutations (lexicographical ordering)
-	permutationsOutfile.open("permutations.txt");
-
-	if (!permutationsOutfile)
-	{
-		cout << "Cannot load file" << endl;
-		return EXIT_FAILURE;
-	}
-
-	Permutation(tempStr, charCount, tempCount, results, level, countsl);
-		
-	permutationsOutfile.close();
-
 	// Open "dictionary" file
 
 	// dword and pword used for pattern matching
 	char dword[MAX_DIC] = { 0 };
-	
+
 	pword = new char[phraseLength + 1];
 	memset(pword, 0, phraseLength + 1);
 
@@ -334,12 +221,12 @@ int main(int argc, char* argv[])
 		getchar();
 
 		DereferenceAllocatedMemory();
-		return EXIT_FAILURE;
+		throw EXIT_FAILURE;
 	}
 
 	//look through "dictionary" matching each permutation with read word from file
 	while (!dictionaryInfile.eof())
-	{		
+	{
 		memset(dword, 0, MAX_DIC);
 		dictionaryInfile >> dword;
 
@@ -353,7 +240,7 @@ int main(int argc, char* argv[])
 				cout << "Dictionary Word[" << di << "] Matches Phrase Word [" << pi << "]\t" << pword << endl;
 			}
 			pi++;
-		} 
+		}
 
 		permutationsInfile.clear();
 		permutationsInfile.seekg(0, ios::beg);
@@ -363,12 +250,121 @@ int main(int argc, char* argv[])
 	}
 
 	//close "Dictionary" file
-	dictionaryInfile.close();	
+	dictionaryInfile.close();
 	permutationsInfile.close();
 
-	DereferenceAllocatedMemory();
+}
 
-	//pause command window until a key is pressed
+void SortPhraseCharacters()
+{
+		//Sort Phrase characters
+		unsortedInput = new char[phraseLength + 1];
+		memset(unsortedInput, 0, phraseLength + 1);
+
+		sortedString = new char[phraseLength + 1];
+		memset(sortedString, 0, phraseLength + 1);
+		strcpy(unsortedInput, phrase);
+		SortString(sortedString, unsortedInput, strlen(unsortedInput));
+
+
+	cout << "Unsorted String:\t" << unsortedInput << endl;
+	cout << "Sorted String:     \t" << sortedString << endl;
+
+	//Count Phrase alphabetical characters
+
+	countsl = CountChar(phraseChars, sortedString, strlen(sortedString), charCount);
+}
+
+void GeneratePermutations()
+{
+	int permutationDenominator = 1;
+	//Determine denominator for no. of permutations calculations
+	for (int i = 0; i < charCount; i++)
+	{
+		permutationDenominator = permutationDenominator * Factorial(phraseChars[i].count);
+	}
+
+	//determine number of permutations
+	const int numberOfPermutations = Factorial(phraseLength) / permutationDenominator;
+
+	//determine permutations from sorted list of characters
+	char tempStr[LETTERSINALPHA] = { 0 };
+	int tempCount[LETTERSINALPHA] = { 0 };
+
+		results = new char[phraseLength + 1];
+		memset(results, 0, phraseLength + 1);
+
+	int level = 0;
+
+	for (int pi = 0; pi < charCount; pi++)
+	{
+		tempStr[pi] = phraseChars[pi].character;
+		tempCount[pi] = phraseChars[pi].count;
+	}
+
+	//recursive function that determines permutations (lexicographical ordering)
+	permutationsOutfile.open("permutations.txt");
+
+	if (!permutationsOutfile)
+	{
+		cout << "Cannot load file" << endl;
+		throw EXIT_FAILURE;
+	}
+
+	Permutation(tempStr, charCount, tempCount, results, level, countsl);
+
+	permutationsOutfile.close();
+}
+
+int main(int argc, char* argv[])
+{
+	cout << "Anagram Generator" << endl;
+
+try
+{
+	if (argc < 2)
+	{
+		cout << "// No phrase seen from the command line" << endl;
+		getchar();
+
+		DereferenceAllocatedMemory();
+		throw EXIT_FAILURE;
+	}
+
+	for (int i = 0; i < argc; i++)
+		cout << "Argument from command line[" << i << "]\t" << argv[i] << endl;
+
+	phraseLength = strlen((const char*)argv[1]);
+
+	//define phrase variable from the heap
+	phrase = new char[phraseLength + 1];
+	memset(phrase, 0, phraseLength + 1);
+
+	strcpy(phrase, (const char*)argv[1]);
+	cout << "\nGot Phase:\t" << phrase << endl;
+	
+	SortPhraseCharacters();
+
+	GeneratePermutations();
+
+	CheckPermutationsAgainstDictionary();
+
+	DereferenceAllocatedMemory();
+}
+catch (const::bad_alloc& e)
+{
+	cout << "Allocation failed: " << e.what() << endl;
+	DereferenceAllocatedMemory();
+	getchar();
+	return EXIT_FAILURE;
+}
+catch (...)
+{
+	DereferenceAllocatedMemory();
+	cout << "Unexpected Event: ";
+}
+	
+//pause command window until a key is pressed
 	getchar();
 	
 	//_CrtDumpMemoryLeaks();
