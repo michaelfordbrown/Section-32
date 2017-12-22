@@ -30,7 +30,7 @@ char* strSortedString = NULL;
 char *strResults = NULL;
 char *strPermutationWord = NULL;
 
-int intMatchCount = 0;
+long int lngMatchCount = 0;
 int intMatchMade = 0;
 
 ofstream strPermutationsOutfile;
@@ -192,6 +192,49 @@ void Permutation(char s[], int intStringLevel, int intCount[], char res[], int l
 	}
 }
 
+bool KMPSearchEngine(char *strHayStack, char *strNeedle, int *intPositionsFound, int &intNumberOfPositions)
+{
+	bool blnFound = false;
+	int m = 0;
+	int i = 0;
+	int intTable[MAX_STR] = { -1 };
+
+	intNumberOfPositions = 0;
+
+	while ((m + i) < (int)strlen(strHayStack))
+	{
+		lngMatchCount++;
+		if (strNeedle[i] == strHayStack[m + i])
+		{
+			i++;
+			if (i == strlen(strNeedle))
+			{
+				intPositionsFound[intNumberOfPositions] = m;
+				intNumberOfPositions++;
+
+				m = m + i - intTable[i];
+				i = intTable[i];
+
+				blnFound = true;
+			}
+		}
+		else
+		{
+			if (intTable[i] > -1)
+			{
+				m = m + i - intTable[i];
+				i = intTable[i];
+			}
+			else
+			{
+				m = m + i + 1;
+				i = 0;
+			}
+		}
+	}
+	return blnFound;
+}
+
 void CheckPermutationsAgainstDictionary()
 {
 	// Open "dictionary" file
@@ -243,22 +286,35 @@ void CheckPermutationsAgainstDictionary()
 			permutationsInfile >> strPermutationWord;
 			int intPermWordLen = strlen(strPermutationWord);
 
+			int intDicWordFound[MAX_STR];
+			int intNoOfPos = 0;
+
+			//Search Optimization: Only match when word length from dictionary is <= pattern
+			if (intDicWordLen <= intPermWordLen)
+			{
+				bPatternMatch = KMPSearchEngine(strPermutationWord, strDicWord, intDicWordFound, intNoOfPos);
+				if (bPatternMatch)
+				{
+					cout << "Dictionary Word[" << intDicIndex << "] " << strDicWord << " Matches strPhrase Word [" << intPermIndex << "]\t" << strPermutationWord << endl;
+					intMatchMade++;
+					break;
+				}
+			}
 			intDecCharIndex = 0;
 			int intPermCharIndex = 0;
 			int intDecCharIndex = 0;
 
 			//cout << "Looking for pattern: " << strDicWord << " in string " << strPermutationWord << endl;
-
+			/*
 			//Search Optimization: Only match when word length from dictionary is <= pattern
 			if (intDicWordLen <= intPermWordLen)
 			{
 				//Search Optimization: Only look up the Pattern when intStringIndexze >= Dictionary word 
-
 				for (intPermCharIndex = 0; intPermCharIndex <= (intPermWordLen - intDicWordLen); intPermCharIndex++)
 				{
 					for (intDecCharIndex = 0; (intDecCharIndex < intDicWordLen) && ((intPermCharIndex + intDecCharIndex) < intPermWordLen); intDecCharIndex++)
 					{
-						intMatchCount++;
+						lngMatchCount++;
 						if (strPermutationWord[intDecCharIndex + intPermCharIndex] != strDicWord[intDecCharIndex])
 						{
 							bPatternMatch = false;
@@ -278,6 +334,7 @@ void CheckPermutationsAgainstDictionary()
 					}
 				}
 			}
+			*/
 
 			intPermIndex++;
 		}
@@ -387,6 +444,22 @@ try
 
 	GeneratePermutations();
 
+	/*bool blnTestFound = false;
+	char testString[] = { "football" };
+	char testWord[] = { "ball"};
+	
+	int testFound[10] = { 0 };
+	int testNoOfPos = 0;
+
+	blnTestFound = KMPSearchEngine(testString, testWord, testFound, testNoOfPos);
+	if (blnTestFound)
+	{
+		cout << "KMP " << testString << "\t" << testWord << "\t";
+		for (int i = 0; i < (int)strlen(testString); i++)
+			cout << testFound[i] << " ";
+		cout << "\t" << testNoOfPos << endl; 
+	}*/
+
 	CheckPermutationsAgainstDictionary();
 
 	DereferenceAllocatedMemory();
@@ -404,8 +477,8 @@ catch (...)
 	cout << "Unexpected Event: ";
 }
 	
-//cout << "Number of matches tested: \t" << intMatchCount << endl;
-//cout << "Number of matches made: \t" << intMatchMade << endl;
+cout << "Number of matches tested: \t" << lngMatchCount << endl;
+cout << "Number of matches made: \t" << intMatchMade << endl;
 
 	cout << "Press any key to continue . . .\n";
 	getchar();
