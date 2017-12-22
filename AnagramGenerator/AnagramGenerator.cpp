@@ -3,7 +3,7 @@
 
 /*
 Anagram Generator
-Write an application that generates all permutations for a given word or phrase and compares these permutations against a dictionary file. Assume that you have access to the dictionary file that contains all permissible words, one word per line. The application should be implemented to read the input word or phrase from the applications command line parameters and to write all valid anagrams, based on the dictionary file’s contents, to standard output.
+Write an application that generates all permutations for a given word or strPhrase and compares these permutations against a dictionary file. Assume that you have access to the dictionary file that contains all permisintStringIndexble words, one word per line. The application should be implemented to read the input word or strPhrase from the applications command line parameters and to write all valid anagrams, based on the dictionary file’s contents, to standard output.
 */
 
 
@@ -24,122 +24,124 @@ Write an application that generates all permutations for a given word or phrase 
 
 using namespace std;
 
-char* phrase = NULL;
-char *unsortedInput = NULL;
-char* sortedString = NULL;
-char *results = NULL;
-char *pword = NULL;
+char* strPhrase = NULL;
+char *strUnsortedInput = NULL;
+char* strSortedString = NULL;
+char *strResults = NULL;
+char *strPermutationWord = NULL;
 
-ofstream permutationsOutfile;
+int intMatchCount = 0;
+int intMatchMade = 0;
+
+ofstream strPermutationsOutfile;
 
 struct PhraseChar {
-	char character = 0;
-	int count = 0;
+	char chrCharacter = 0;
+	int intCount = 0;
 };
 
-int phraseLength = 0;
-PhraseChar phraseChars[LETTERSINALPHA];
+int intPhraseLength = 0;
+PhraseChar objPhraseChars[LETTERSINALPHA];
 int charCount = 0;
-int countsl = 0;
+int intCountintStringLevel = 0;
 
-int CountChar(PhraseChar *p, const char *s, int strlen, int& cc);
 
 void 	DereferenceAllocatedMemory()
 {
 	//dereferences a pointers to allocated memory
-	if (results != NULL)
+	if (strResults != NULL)
 	{
-		delete[] results;
-		results = NULL;
+		delete[] strResults;
+		strResults = NULL;
 	}
 	
-	if (sortedString != NULL)
+	if (strSortedString != NULL)
 	{
-		delete[] sortedString;
-		sortedString = NULL;
+		delete[] strSortedString;
+		strSortedString = NULL;
 	}
 
-	if (unsortedInput != NULL)
+	if (strUnsortedInput != NULL)
 	{
-		delete[] unsortedInput;
-		unsortedInput = NULL;
+		delete[] strUnsortedInput;
+		strUnsortedInput = NULL;
 	}
 
-	if (phrase != NULL)
+	if (strPhrase != NULL)
 	{
-		delete[] phrase;
-		phrase = NULL;
+		delete[] strPhrase;
+		strPhrase = NULL;
 	}
 
-	if (pword != NULL)
+	if (strPermutationWord != NULL)
 	{
-		delete[] pword;
-		pword = NULL;
+		delete[] strPermutationWord;
+		strPermutationWord = NULL;
 	}
 
 };
 
 int Factorial(int n)
 {
-	int value = 1;
+	int intValue = 1;
 
-	// The value of 0! is 1
+	// The intValue of 0! is 1
 	if (n > 0)
 	{
 		for (int i = 1; i <= n; i++)
-			value = value * i;
+			intValue = intValue * i;
 	}
 
-	return value;
+	return intValue;
 }
 
 
-int CountChar(PhraseChar *p, const char *s, int strlen, int& cc)
+int CountChar(PhraseChar *objPhraseChar, const char *chrS, int intStrLen, int& intCharCount)
 {
-	int pi = 0;
-	int sl = 0;
+	int intPermIndex = 0;
+	int intStringLevel = 0;
 
-	cc = 0;
+	intCharCount = 0;
 
-	for (int si = 0; si < strlen; si++)
+	for (int i = 0; i < intStrLen; i++)
 	{
-		if ((s[si] >= 'a') && (s[si] <= 'z'))
+		if ((chrS[i] >= 'a') && (chrS[i] <= 'z'))
 		{
-			if ((pi == 0) && (p[0].character) == 0)
+			if ((intPermIndex == 0) && (objPhraseChar[0].chrCharacter) == 0)
 			{
-				p[0].character = s[si];
-				p[0].count = 1;
-				sl = 1;
-				cc = 1;
+				objPhraseChar[0].chrCharacter = chrS[i];
+				objPhraseChar[0].intCount = 1;
+				intStringLevel = 1;
+				intCharCount = 1;
 			}
 			else
 			{
-				if (s[si] > p[pi].character)
+				if (chrS[i] > objPhraseChar[intPermIndex].chrCharacter)
 				{
-					pi++;
-					p[pi].character = s[si];
-					p[pi].count = 1;
-					sl++;
-					cc++;
+					intPermIndex++;
+					objPhraseChar[intPermIndex].chrCharacter = chrS[i];
+					objPhraseChar[intPermIndex].intCount = 1;
+					intStringLevel++;
+					intCharCount++;
 				}
-				else if (s[si] == p[pi].character)
+				else if (chrS[i] == objPhraseChar[intPermIndex].chrCharacter)
 				{
-					p[pi].count = p[pi].count + 1;
-					sl++;
+					objPhraseChar[intPermIndex].intCount = objPhraseChar[intPermIndex].intCount + 1;
+					intStringLevel++;
 				}
 			}
 		}
 	}
-	return sl;
+	return intStringLevel;
 }
 
 void ShowPhraseChars(PhraseChar *p)
 {
-	int pi = 0;
-	while (p[pi].count > 0)
+	int intPermIndex = 0;
+	while (p[intPermIndex].intCount > 0)
 	{
-		cout << "\t" << p[pi].character << "\t[" << p[pi].count << "]\n";
-		pi++;
+		cout << "\t" << p[intPermIndex].chrCharacter << "\t[" << p[intPermIndex].intCount << "]\n";
+		intPermIndex++;
 	}
 }
 
@@ -165,46 +167,44 @@ void SortString(char *sortedstr, const char *unsortedstr, int strlen)
 	}
 }
 
-//Permutation(sortedString, countsl, tempCount, results, level, phraseLength);
-void Permutation(char s[], int sl, int count[], char res[], int lev, const int size)
+void Permutation(char s[], int intStringLevel, int intCount[], char res[], int lev, const int intStringIndexze)
 {
 	int i = 0;
-	if (lev == size)
+	if (lev == intStringIndexze)
 	{
 		//cout << "Permutation:\t" << res << endl;
-		permutationsOutfile << res << endl;
+		strPermutationsOutfile << res << endl;
 
 		return;
 	}
 
-	while (i < sl)
+	while (i < intStringLevel)
 	{
-		if (count[i] != 0)
+		if (intCount[i] != 0)
 		{
 			res[lev] = s[i];
 			//cout << "RES: " << res[lev] << " LEV:" << lev << " i: " << i << endl;
-			count[i]--;
-			Permutation(s, sl, count, res, (lev +1), size);
-			count[i]++;
+			intCount[i]--;
+			Permutation(s, intStringLevel, intCount, res, (lev +1), intStringIndexze);
+			intCount[i]++;
 		}
 		i++;
 	}
 }
 
-
 void CheckPermutationsAgainstDictionary()
 {
 	// Open "dictionary" file
 
-	// dword and pword used for pattern matching
-	char dword[MAX_DIC] = { 0 };
+	// strDicWord and strPermutationWord used for pattern matching
+	char strDicWord[MAX_DIC] = { 0 };
 
-	pword = new char[phraseLength + 1];
-	memset(pword, 0, phraseLength + 1);
+	strPermutationWord = new char[intPhraseLength + 1];
+	memset(strPermutationWord, 0, intPhraseLength + 1);
 
 	//indexes to permutation list and dictionary 
-	int pi = 0;
-	int di = 0;
+	int intPermIndex = 0;
+	int intDicIndex = 0;
 
 	ifstream permutationsInfile;
 	permutationsInfile.open("permutations.txt");
@@ -224,64 +224,69 @@ void CheckPermutationsAgainstDictionary()
 		throw EXIT_FAILURE;
 	}
 
-
 	bool bPatternMatch = false;
-	int dci = 0;
+	int intDecCharIndex = 0;
 
 	//look through "dictionary" matching each permutation with read word from file
 	while (!dictionaryInfile.eof())
 	{
-		memset(dword, 0, MAX_DIC);
+		memset(strDicWord, 0, MAX_DIC);
 
-		dictionaryInfile >> dword;
-		//cout << "Read Dic:" << dword << endl;
+		dictionaryInfile >> strDicWord;
+		int intDicWordLen = strlen(strDicWord);
+
+		//cout << "Read Dic:" << strDicWord << endl;
 		bPatternMatch = false;
-		while (!permutationsInfile.eof() && (strlen(dword) > 0) && !bPatternMatch)
+		while (!permutationsInfile.eof() && (strlen(strDicWord) > 0) && !bPatternMatch)
 		{
-			//bPatternMatch = false;
-			memset(pword, 0, phraseLength + 1);
-			permutationsInfile >> pword;
-			
-			dci = 0;
-			int pcl = strlen(pword);
-			int dcl = strlen(dword);
+			memset(strPermutationWord, 0, intPhraseLength + 1);
+			permutationsInfile >> strPermutationWord;
+			int intPermWordLen = strlen(strPermutationWord);
 
-			int pci = 0;
-			int dci = 0;
+			intDecCharIndex = 0;
+			int intPermCharIndex = 0;
+			int intDecCharIndex = 0;
 
-			//cout << "Looking for pattern: " << dword << " in string " << pword << endl;
+			//cout << "Looking for pattern: " << strDicWord << " in string " << strPermutationWord << endl;
 
-			for (pci = 0; pci < pcl; pci++)
+			//Search Optimization: Only match when word length from dictionary is <= pattern
+			if (intDicWordLen <= intPermWordLen)
 			{
-				for (dci = 0; (dci < dcl) && ((pci + dci) < pcl); dci++)
+				//Search Optimization: Only look up the Pattern when intStringIndexze >= Dictionary word 
+
+				for (intPermCharIndex = 0; intPermCharIndex <= (intPermWordLen - intDicWordLen); intPermCharIndex++)
 				{
-					if (pword[dci + pci] != dword[dci])
+					for (intDecCharIndex = 0; (intDecCharIndex < intDicWordLen) && ((intPermCharIndex + intDecCharIndex) < intPermWordLen); intDecCharIndex++)
 					{
-						bPatternMatch = false;
-						break;
+						intMatchCount++;
+						if (strPermutationWord[intDecCharIndex + intPermCharIndex] != strDicWord[intDecCharIndex])
+						{
+							bPatternMatch = false;
+							break;
+						}
 					}
-				}
-				if (dci == dcl)
-				{
-					bPatternMatch = true;
-					//if (strcmp(dword, pword) == 0)
-					if (bPatternMatch)
+					if (intDecCharIndex == intDicWordLen)
 					{
-						cout << "Dictionary Word[" << di << "] " << dword << " Matches Phrase Word [" << pi << "]\t" << pword << endl;
-						break;
+						bPatternMatch = true;
+
+						if (bPatternMatch)
+						{
+							cout << "Dictionary Word[" << intDicIndex << "] " << strDicWord << " Matches strPhrase Word [" << intPermIndex << "]\t" << strPermutationWord << endl;
+							intMatchMade++;
+							break;
+						}
 					}
 				}
 			}
 
-
-			pi++;
+			intPermIndex++;
 		}
 
 		permutationsInfile.clear();
 		permutationsInfile.seekg(0, ios::beg);
 
-		pi = 0;
-		di++;
+		intPermIndex = 0;
+		intDicIndex++;
 	}
 
 	//close "Dictionary" file
@@ -293,21 +298,21 @@ void CheckPermutationsAgainstDictionary()
 void SortPhraseCharacters()
 {
 		//Sort Phrase characters
-		unsortedInput = new char[phraseLength + 1];
-		memset(unsortedInput, 0, phraseLength + 1);
+		strUnsortedInput = new char[intPhraseLength + 1];
+		memset(strUnsortedInput, 0, intPhraseLength + 1);
 
-		sortedString = new char[phraseLength + 1];
-		memset(sortedString, 0, phraseLength + 1);
-		strcpy(unsortedInput, phrase);
-		SortString(sortedString, unsortedInput, strlen(unsortedInput));
+		strSortedString = new char[intPhraseLength + 1];
+		memset(strSortedString, 0, intPhraseLength + 1);
+		strcpy(strUnsortedInput, strPhrase);
+		SortString(strSortedString, strUnsortedInput, strlen(strUnsortedInput));
 
 
-	cout << "Unsorted String:\t" << unsortedInput << endl;
-	cout << "Sorted String:     \t" << sortedString << endl;
+	cout << "Unsorted String:\t" << strUnsortedInput << endl;
+	cout << "Sorted String:     \t" << strSortedString << endl;
 
 	//Count Phrase alphabetical characters
 
-	countsl = CountChar(phraseChars, sortedString, strlen(sortedString), charCount);
+	intCountintStringLevel = CountChar(objPhraseChars, strSortedString, strlen(strSortedString), charCount);
 }
 
 void GeneratePermutations()
@@ -316,39 +321,39 @@ void GeneratePermutations()
 	//Determine denominator for no. of permutations calculations
 	for (int i = 0; i < charCount; i++)
 	{
-		permutationDenominator = permutationDenominator * Factorial(phraseChars[i].count);
+		permutationDenominator = permutationDenominator * Factorial(objPhraseChars[i].intCount);
 	}
 
 	//determine number of permutations
-	const int numberOfPermutations = Factorial(phraseLength) / permutationDenominator;
+	const int numberOfPermutations = Factorial(intPhraseLength) / permutationDenominator;
 
 	//determine permutations from sorted list of characters
 	char tempStr[LETTERSINALPHA] = { 0 };
 	int tempCount[LETTERSINALPHA] = { 0 };
 
-		results = new char[phraseLength + 1];
-		memset(results, 0, phraseLength + 1);
+		strResults = new char[intPhraseLength + 1];
+		memset(strResults, 0, intPhraseLength + 1);
 
 	int level = 0;
 
-	for (int pi = 0; pi < charCount; pi++)
+	for (int i = 0; i < charCount; i++)
 	{
-		tempStr[pi] = phraseChars[pi].character;
-		tempCount[pi] = phraseChars[pi].count;
+		tempStr[i] = objPhraseChars[i].chrCharacter;
+		tempCount[i] = objPhraseChars[i].intCount;
 	}
 
 	//recursive function that determines permutations (lexicographical ordering)
-	permutationsOutfile.open("permutations.txt");
+	strPermutationsOutfile.open("permutations.txt");
 
-	if (!permutationsOutfile)
+	if (!strPermutationsOutfile)
 	{
 		cout << "Cannot load file" << endl;
 		throw EXIT_FAILURE;
 	}
 
-	Permutation(tempStr, charCount, tempCount, results, level, countsl);
+	Permutation(tempStr, charCount, tempCount, strResults, level, intCountintStringLevel);
 
-	permutationsOutfile.close();
+	strPermutationsOutfile.close();
 }
 
 int main(int argc, char* argv[])
@@ -359,7 +364,7 @@ try
 {
 	if (argc < 2)
 	{
-		cout << "// No phrase seen from the command line" << endl;
+		cout << "// No Phrase seen from the command line" << endl;
 		getchar();
 
 		DereferenceAllocatedMemory();
@@ -369,14 +374,14 @@ try
 	for (int i = 0; i < argc; i++)
 		cout << "Argument from command line[" << i << "]\t" << argv[i] << endl;
 
-	phraseLength = strlen((const char*)argv[1]);
+	intPhraseLength = strlen((const char*)argv[1]);
 
-	//define phrase variable from the heap
-	phrase = new char[phraseLength + 1];
-	memset(phrase, 0, phraseLength + 1);
+	//define Phrase variable from the heap
+	strPhrase = new char[intPhraseLength + 1];
+	memset(strPhrase, 0, intPhraseLength + 1);
 
-	strcpy(phrase, (const char*)argv[1]);
-	cout << "\nGot Phase:\t" << phrase << endl;
+	strcpy(strPhrase, (const char*)argv[1]);
+	cout << "\nGot Phase:\t" << strPhrase << endl;
 	
 	SortPhraseCharacters();
 
@@ -399,7 +404,10 @@ catch (...)
 	cout << "Unexpected Event: ";
 }
 	
-//pause command window until a key is pressed
+//cout << "Number of matches tested: \t" << intMatchCount << endl;
+//cout << "Number of matches made: \t" << intMatchMade << endl;
+
+	cout << "Press any key to continue . . .\n";
 	getchar();
 	
 	//_CrtDumpMemoryLeaks();
