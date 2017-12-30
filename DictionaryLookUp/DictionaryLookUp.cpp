@@ -12,120 +12,67 @@
 #include <fstream>
 #include <string.h>
 
-using namespace std;
+#include "DictionaryLookUp.h"
 
-#define MAXWORD 30
-#define MAXALPHA 26
-
-
-
-class WordList
+void WordList::addnode(char* word)
 {
-private:
+	Node *temp = new Node;
+	strcpy(temp->word, word);
+	//temp->stoIndex = stoPosition;
+	temp->next = temp;
 
-	struct Node
+	tail->next = temp;
+	tail = temp;
+	tail->next = NULL;
+}
+
+void WordList::showlistfromhead()
+{
+	Node *temp = head;
+
+	if (temp != NULL)
 	{
-		char word[MAXWORD] = { 0 };
-		streamoff stoIndex = 0;
-		Node* next;
-	};
-
-	Node* head;
-	Node* tail;
-	Node *index;
-
-public:
-	WordList()
-	{
-		Node *t;
-
-		t = new Node();
-		memset(t->word, 0, MAXWORD);
-		t->next = NULL;
-
-		head = t;
-		tail = t;
-
-	}
-
-	~WordList()
-	{
-		Node* last = head;
-		while (last->word != NULL)
+		while (temp != NULL)
 		{
-			Node* unlinked = last;
-			last = last->next;
-			delete unlinked;
-		}
-		_CrtDumpMemoryLeaks();
-	}
-
-	void addnode(char* word)
-	{
-		Node *temp = new Node;
-		strcpy(temp->word, word);
-		//temp->stoIndex = stoPosition;
-		temp->next = temp;
-
-		tail->next = temp;
-		tail = temp;
-		tail->next = NULL;
-	}
-
-	void showlistfromhead()
-	{
-		Node *temp = head;
-
-		if (temp != NULL)
-		{
-			while (temp != NULL)
+			if (strlen(temp->word) > 0)
 			{
-				if (strlen(temp->word) > 0)
-				{
-					cout << temp << "\t" << temp->word << "\t" << temp->next << "\n";
-				}
-				temp = temp->next;
+				std::cout << temp << "\t" << temp->word << "\t" << temp->next << "\n";
 			}
+			temp = temp->next;
 		}
 	}
+}
 
-	bool searchlistfromhead(char* strWord)
+bool WordList::searchlistfromhead(char* strWord)
+{
+	index = head;
+
+	while (index != NULL)
 	{
-		index = head;
-
-		while (index != NULL)
+		if (strcmp(index->word, strWord) == 0)
 		{
-			if (strcmp(index->word, strWord) == 0)
-			{
-				return true;
-			}
-			else
-			{
-				index = index->next;
-			}
+			return true;
 		}
-		return false;
+		else
+		{
+			index = index->next;
+		}
 	}
-};
+	return false;
+}
 
 void addToWordList(WordList* list, char* word)
 {
-	list[int(word[0]) - int("a")].addnode(word);
+	list[int(word[0]) - int('a')].addnode(word);
 }
 
-ifstream dictionaryInFile;
-
-int WordFoundArray[26] = { 0 };
-
-//WordIndex wiWordInDictionary;
-
-bool OpenDictionaryFile(char* strFileName)
+bool OpenDictionaryFile(std::ifstream & dictionaryInFile, char* strFileName)
 {
 	dictionaryInFile.open(strFileName);
 
 	if (!dictionaryInFile)
 	{
-		cout << "dictionary/permutations file failed to open!" << endl;
+		std::cout << "dictionary/permutations file failed to open!" << std::endl;
 		getchar();
 
 		return false;
@@ -134,7 +81,7 @@ bool OpenDictionaryFile(char* strFileName)
 	return true;
 }
 
-bool CheckDictionary(char* strWord, streampos* stoIndex)
+bool CheckDictionary(std::ifstream & dictionaryInFile, char* strWord, std::streampos* stoIndex)
 {
 	bool blnWordFound = false;
 
@@ -142,7 +89,7 @@ bool CheckDictionary(char* strWord, streampos* stoIndex)
 	char chrFirstChar = tolower(strWord[0]);
 	char chrDicChar = ' ';
 
-	streampos stpFilePos = 0;
+	std::streampos stpFilePos = 0;
 
 	while ((!dictionaryInFile.eof()) && 
 		(chrDicChar <= chrFirstChar) &&
@@ -150,7 +97,7 @@ bool CheckDictionary(char* strWord, streampos* stoIndex)
 	{
 		memset(strDicWord, 0, MAXWORD);
 
-		if ((stoIndex[int(chrFirstChar) - int('a')] == streampos(0)) && (!blnWordFound))
+		if ((stoIndex[int(chrFirstChar) - int('a')] == std::streampos(0)) && (!blnWordFound))
 		{
 			dictionaryInFile >> strDicWord;
 			chrDicChar = tolower(strDicWord[0]);
@@ -160,7 +107,7 @@ bool CheckDictionary(char* strWord, streampos* stoIndex)
 			{
 				stoIndex[int(chrFirstChar) - int('a')] =
 					dictionaryInFile.tellg() - 
-					streampos(strlen(strDicWord) - 1);
+					std::streampos(strlen(strDicWord) - 1);
 			}
 		}
 		else if (stpFilePos < (stoIndex[int(chrFirstChar) - int('a')]))
@@ -195,12 +142,7 @@ bool CheckFoundWords(char *strWord)
 	return true;
 }
 
-WordList strWordFoundList[MAXALPHA];
-WordList strWordNotFoundList[MAXALPHA];
-
-streampos stoPosition[MAXALPHA] = { 0 };
-
-void LookForWord(char *strTestWord)
+void LookForWord(std::ifstream & dictionaryInFile, std::streampos* stoPosition, WordList* strWordFoundList, WordList* strWordNotFoundList, char *strTestWord)
 {
 	int intListIndex = int(tolower(strTestWord[0])) - int('a');
 
@@ -208,9 +150,9 @@ void LookForWord(char *strTestWord)
 	{
 		if (!strWordNotFoundList[intListIndex].searchlistfromhead(strTestWord))
 		{
-			if (CheckDictionary(strTestWord, stoPosition))
+			if (CheckDictionary(dictionaryInFile, strTestWord, stoPosition))
 			{
-				cout << strTestWord << " found at: " << stoPosition[intListIndex] << endl;
+				std::cout << strTestWord << " found at: " << stoPosition[intListIndex] << std::endl;
 				strWordFoundList[intListIndex].addnode(strTestWord);
 			}
 			else
@@ -220,47 +162,13 @@ void LookForWord(char *strTestWord)
 		}
 		else
 		{
-			cout << strTestWord << " cannot be found in dictionary.\n";
+			std::cout << strTestWord << " cannot be found in dictionary.\n";
 		}
 	}
 	else
 	{
-		cout << strTestWord << " already in dictionary.\n";
+		std::cout << strTestWord << " already in dictionary.\n";
 	}
 }
 
-int main()
-{
-	OpenDictionaryFile("dictionary.txt");
-
-	LookForWord("Michael");
-	dictionaryInFile.seekg(0);
-	LookForWord("Aarhus");
-	LookForWord("hello");
-	LookForWord("world");
-	dictionaryInFile.seekg(0);
-	LookForWord("Aaron");
-	LookForWord("Qwebet");
-	dictionaryInFile.seekg(0);
-	LookForWord("hello");
-	LookForWord("Qwebet");
-
-	cout << "\nWords Found\n";
-	cout << "Addr\t\tWord\tNextAddr\n";
-	for (int i = 0; i < MAXALPHA; i++)
-	{
-		strWordFoundList[i].showlistfromhead();
-	}
-
-	cout << "\nWords Not Found\n"; 
-	cout << "Addr\t\tWord\tNextAddr\n";
-	for (int i = 0; i < MAXALPHA; i++)
-	{
-		strWordNotFoundList[i].showlistfromhead();
-	}
-
-	dictionaryInFile.close();
-
-    return EXIT_SUCCESS;
-}
 
