@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BinaryFileHandler", "Binary
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DictionaryLookUp", "DictionaryLookUp\DictionaryLookUp.vcxproj", "{5D1A2A80-B4E6-426B-B480-F1309FABA49C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MakeBinarySampleFile", "MakeBinarySampleFile\MakeBinarySampleFile.vcxproj", "{6EB3CE31-9473-42EF-82CE-937745B6C542}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,16 @@ Global
 		{5D1A2A80-B4E6-426B-B480-F1309FABA49C}.Release|x64.Build.0 = Release|x64
 		{5D1A2A80-B4E6-426B-B480-F1309FABA49C}.Release|x86.ActiveCfg = Release|Win32
 		{5D1A2A80-B4E6-426B-B480-F1309FABA49C}.Release|x86.Build.0 = Release|Win32
+		{6EB3CE31-9473-42EF-82CE-937745B6C542}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{6EB3CE31-9473-42EF-82CE-937745B6C542}.Debug|x64.ActiveCfg = Debug|x64
+		{6EB3CE31-9473-42EF-82CE-937745B6C542}.Debug|x64.Build.0 = Debug|x64
+		{6EB3CE31-9473-42EF-82CE-937745B6C542}.Debug|x86.ActiveCfg = Debug|Win32
+		{6EB3CE31-9473-42EF-82CE-937745B6C542}.Debug|x86.Build.0 = Debug|Win32
+		{6EB3CE31-9473-42EF-82CE-937745B6C542}.Release|Any CPU.ActiveCfg = Release|Win32
+		{6EB3CE31-9473-42EF-82CE-937745B6C542}.Release|x64.ActiveCfg = Release|x64
+		{6EB3CE31-9473-42EF-82CE-937745B6C542}.Release|x64.Build.0 = Release|x64
+		{6EB3CE31-9473-42EF-82CE-937745B6C542}.Release|x86.ActiveCfg = Release|Win32
+		{6EB3CE31-9473-42EF-82CE-937745B6C542}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
