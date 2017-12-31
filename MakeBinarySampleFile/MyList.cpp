@@ -5,9 +5,7 @@ MyList::MyList()
 {
 	ListNode *t;
 
-	t = new ListNode();
-	t->chrChar = 0;
-	t->next = NULL;
+	t = NULL;
 
 	head = t;
 	tail = t;
@@ -25,29 +23,47 @@ MyList::~MyList()
 	//_CrtDumpMemoryLeaks();
 }
 
-void MyList::addnode(char chrIn)
-{
-	tail->chrChar = chrIn;
-
+void MyList::AddNode(char chrIn)
+{	
 	ListNode *temp = new ListNode;
-	temp->chrChar = 0;
-	temp->next = temp;
-
-	tail->next = temp;
-	tail = temp;
-	tail->next = NULL;
+	temp->chrChar = chrIn;
+	
+	if (tail == NULL)
+	{
+		temp->uintIndex = 0;
+		temp->next = NULL;
+		head = temp;
+		tail = temp;
+	}
+	else
+	{
+		temp->uintIndex = tail->uintIndex + 1;
+		temp->next = NULL;
+		temp->prev = tail;
+		tail->next = temp;
+		tail = temp;
+	}
 }
 
-void  MyList::showlistfromhead()
+void  MyList::ShowListFromHead()
 {
 	ListNode *temp = head;
 
-	if (temp != NULL)
+	while (temp != NULL)
 	{
-		while (temp != NULL)
-		{
-			std::cout << temp << "\t" << temp->chrChar << "\t" << temp->next << "\n";
-			temp = temp->next;
-		}
+		std::cout << temp << "\t" << temp->chrChar << "\t" << temp->uintIndex << "\t" << temp->next << "\t" << temp->prev << "\n";
+		temp = temp->next;
 	}
+}
+
+void  MyList::ShowListFromTail()
+{
+	ListNode *temp = tail;
+	
+	do
+	{
+		std::cout << temp << "\t" << temp->chrChar << "\t" << temp->uintIndex << "\t" << temp->next << "\t" << temp->prev << "\n";
+			temp = temp->prev;
+	} 
+	while (temp != head);
 }

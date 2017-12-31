@@ -11,147 +11,39 @@
 #include "MakeBinaryFile.h"
 #include "SearchHayStack.h"
 
-/*
-struct ListNode
+/*void MakeBadMatchTable(MyList *mlPattern, unsigned int *uintDistances)
 {
-	char chrChar  = 0;
-	ListNode* next;
-};
 
-class MyList
-{
-private:
+	ListNode *mlTemp = mlPattern->head;
+	unsigned int uintPatternLength = 0;
+	unsigned int uintDefaultValue = 0;
 
-	ListNode* tail;
-	ListNode *index;
+	int i = 0;
 
-public:
-	ListNode* head;
+	for (int i = 0; i < (MAXALPHA + 1); i++)
+		uintDistances[i] = 0;
 
-	MyList();
-	~MyList();
-
-	void addnode(char chrInChar);
-	void  MyList::showlistfromhead();
-};
-
-MyList::MyList()
-{
-	ListNode *t;
-
-	t = new ListNode();
-	t->chrChar = 0;
-	t->next = NULL;
-
-	head = t;
-	tail = t;
-}
-
-MyList::~MyList()
-{
-	ListNode* last = head;
-	while (last != NULL)
+	while (mlTemp->chrChar != '\0')
 	{
-		ListNode* unlinked = last;
-		last = last->next;
-		delete unlinked;
+		uintPatternLength = uintPatternLength++;
+		mlTemp = mlTemp->next;
 	}
-	//_CrtDumpMemoryLeaks();
-}
+	uintDefaultValue = uintPatternLength;
 
-void MyList::addnode(char chrIn)
-{
-	tail->chrChar = chrIn;
-
-	ListNode *temp = new ListNode;
-	temp->chrChar = 0;
-	temp->next = temp;
-
-	tail->next = temp;
-	tail = temp;
-	tail->next = NULL;
-}
-
-void  MyList::showlistfromhead()
-{
-	ListNode *temp = head;
-
-	if (temp != NULL)
+	mlTemp = mlPattern->head;
+	while (mlTemp->chrChar != '\0')
 	{
-		while (temp != NULL)
-		{
-			std::cout << temp << "\t" << temp->chrChar << "\t" << temp->next << "\n";
-			temp = temp->next;
-		}
-	}
-}
+		uintDistances[int(tolower(mlTemp->chrChar)) - int('a')] = uintPatternLength - i - 1;
+		i++;
 
-
-
-void SearchHayStack (char* chrInBinaryFile, MyList* nsNeedle)
-{
-	bool blnWordFound = false;
-
-	std::ifstream ifsHayStack;
-	ifsHayStack.open(chrInBinaryFile, std::ios_base::binary);
-
-	if (!ifsHayStack)
-	{
-		std::cout << chrInBinaryFile << " binary file failed to open!" << std::endl;
-		getchar();
+		if ((i == uintPatternLength) && (uintDistances[int(tolower(mlTemp->chrChar)) - int('a')] == 0))
+			uintDistances[int(tolower(mlTemp->chrChar)) - int('a')] = uintDefaultValue;
+		mlTemp = mlTemp->next;
 	}
 
-	ListNode *mlTemp = nsNeedle->head;
-	char chrHayStackChar = 0;
-	char chrNeedleChar = 0;
-	chrNeedleChar = mlTemp->chrChar;
-	bool blnMatching = false;
-	std::streampos stpAnchor = 0;
-
-	while (!ifsHayStack.eof())
-	{
-		ifsHayStack.get(chrHayStackChar);
-
-		while ((mlTemp->chrChar != '\0') && (!ifsHayStack.eof()))
-		{
-			if (tolower(chrHayStackChar) == tolower(chrNeedleChar))
-			{
-				if (!blnMatching)
-				{
-					blnMatching = true;
-					stpAnchor = ifsHayStack.tellg();
-				}
-
-				mlTemp = mlTemp->next;
-				chrNeedleChar = mlTemp->chrChar;
-
-				ifsHayStack.get(chrHayStackChar);
-			}
-			else if (!blnMatching)
-			{
-				ifsHayStack.get(chrHayStackChar);
-			}
-			else
-			{
-				mlTemp = nsNeedle->head;
-				chrNeedleChar = mlTemp->chrChar;
-
-				ifsHayStack.seekg(stpAnchor);
-				ifsHayStack.get(chrHayStackChar);
-				blnMatching = false;
-			}
-		}
-		if (blnMatching)
-		{
-			blnMatching = false;
-			mlTemp = nsNeedle->head;
-			chrNeedleChar = mlTemp->chrChar;
-			std::cout << "Match Found At: " << ifsHayStack.tellg() << std::endl;
-		}
-		stpAnchor = 0;
-	}
-}
-*/
+	
+	uintDistances[MAXALPHA] = uintDefaultValue;
+}*/
 
 int main()
 {
@@ -165,11 +57,12 @@ int main()
 
 	while ((chrInput != '\n') && (chrInput != 0))
 	{
-		mlNeedle->addnode(chrInput);
+		mlNeedle->AddNode(chrInput);
 		std::cin.get(chrInput);
 	}
 
-	mlNeedle->showlistfromhead();
+	mlNeedle->ShowListFromHead();
+
 
 	SearchHayStack("TestBinaryFile.bin", mlNeedle);
 
