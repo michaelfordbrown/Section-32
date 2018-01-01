@@ -11,42 +11,12 @@
 #include "MakeBinaryFile.h"
 #include "SearchHayStack.h"
 
-/*void MakeBadMatchTable(MyList *mlPattern, unsigned int *uintDistances)
-{
-
-	ListNode *mlTemp = mlPattern->head;
-	unsigned int uintPatternLength = 0;
-	unsigned int uintDefaultValue = 0;
-
-	int i = 0;
-
-	for (int i = 0; i < (MAXALPHA + 1); i++)
-		uintDistances[i] = 0;
-
-	while (mlTemp->chrChar != '\0')
-	{
-		uintPatternLength = uintPatternLength++;
-		mlTemp = mlTemp->next;
-	}
-	uintDefaultValue = uintPatternLength;
-
-	mlTemp = mlPattern->head;
-	while (mlTemp->chrChar != '\0')
-	{
-		uintDistances[int(tolower(mlTemp->chrChar)) - int('a')] = uintPatternLength - i - 1;
-		i++;
-
-		if ((i == uintPatternLength) && (uintDistances[int(tolower(mlTemp->chrChar)) - int('a')] == 0))
-			uintDistances[int(tolower(mlTemp->chrChar)) - int('a')] = uintDefaultValue;
-		mlTemp = mlTemp->next;
-	}
-
-	
-	uintDistances[MAXALPHA] = uintDefaultValue;
-}*/
-
 int main()
 {
+	for (int i = 0; i < 100; i++)
+		std::cout << (i % 10);
+	std::cout << std::endl;
+
 	MakeBinaryFile mbfText2Binary("TestTextFile.txt", "TestBinaryFile.bin");
 
 	MyList *mlNeedle = new MyList();
@@ -55,6 +25,7 @@ int main()
 	char chrInput = 0;
 	std::cin.get(chrInput);
 
+	
 	while ((chrInput != '\n') && (chrInput != 0))
 	{
 		mlNeedle->AddNode(chrInput);
@@ -65,6 +36,8 @@ int main()
 
 
 	SearchHayStack("TestBinaryFile.bin", mlNeedle);
+
+	std::cout << "\nSearch Completed\n";
 
 	ListNode* last = mlNeedle->head;
 	while (last != NULL)

@@ -40,8 +40,9 @@ void MakeBadMatchTable(MyList *mlPattern, unsigned int *uintDistances)
 		chrC = int('a') + i;
 		if (i == MAXALPHA)
 			chrC = int('*');
-		std::cout << i << "\t" << chrC << "\t" << uintDistances[i] << std::endl;
+		std::cout << i << "\t" << chrC << "\t" << uintDistances[i] << "\t";
 	}
+	std::cout << std::endl;
 
 }
 
@@ -51,8 +52,20 @@ char chrGetNextLetter(std::ifstream & ifsInFile)
 
 	ifsInFile.get(chrCharIn);
 	chrCharIn = tolower(chrCharIn);
-	if (!isalpha(chrCharIn) && !ifsInFile.eof())
-		chrCharIn = MAXALPHA + int('a');
+
+	while (!isalpha(chrCharIn) && !ifsInFile.eof())
+	{
+		ifsInFile.seekg(-1, std::ios::cur);
+		//std::cout << "Cur GNL File Pos: " << chrCharIn << " at: " << ifsInFile.tellg() << "\t";
+
+		ifsInFile.seekg(-1, std::ios::cur);
+		ifsInFile.get(chrCharIn);
+		chrCharIn = tolower(chrCharIn);
+
+		ifsInFile.seekg(-1, std::ios::cur);
+		//std::cout << "New GNL File Pos: " << chrCharIn << " at: " << ifsInFile.tellg() << std::endl;
+		ifsInFile.seekg(1, std::ios::cur);
+	}
 
 	return chrCharIn;
 }
@@ -73,51 +86,95 @@ void SearchHayStack(char* binHayStackFile, MyList* nsNeedle)
 		getchar();
 	}
 
-
-
 #ifdef DEVELOP
+
+	bool blnEndSearch = false;
+	bool blnMatchInProgress = false;
+
 	char chrHayStackChar = 0;
 	char chrNeedleChar = 0;
 
 	std::streampos stpSkip = std::ios_base::beg;
+	std::streampos stpAncor = std::ios_base::beg;
 	std::streampos stpHayPointer = std::ios_base::beg;
 
 	ListNode *InTemp = nsNeedle->tail;
-	unsigned int uintNeedleLength = InTemp->uintIndex;
+	char chrSkipChar = tolower(InTemp->chrChar);
+	unsigned int uintNeedleLength = (InTemp->uintIndex)+1;
 	unsigned int uintSkip = 0;
 
-	ifsHayStack.seekg(uintNeedleLength, stpHayPointer);
+	int intCurrentFilePoisiton = 0;
 
-	while (!ifsHayStack.eof())
+	int intOffsetEnd = 0 - (int)uintNeedleLength;
+	ifsHayStack.seekg(intOffsetEnd, ifsHayStack.end);
+	int intFinalSearchPosition = (int)ifsHayStack.tellg();
+
+	ifsHayStack.seekg((uintNeedleLength - 1), ifsHayStack.beg);
+	stpAncor = ifsHayStack.tellg();
+
+	while (!ifsHayStack.eof() && !blnEndSearch)
 	{
 		chrHayStackChar = chrGetNextLetter(ifsHayStack);
 		chrNeedleChar = tolower(InTemp->chrChar);
 
 		if (chrHayStackChar == chrNeedleChar)
 		{
+			blnMatchInProgress = true;
 			if (InTemp != nsNeedle->head)
 			{
-				ifsHayStack.seekg(-2, std::ios_base::cur);
+				ifsHayStack.seekg(-2, std::ios::cur);
 				InTemp = InTemp->prev;
 			}
 			else
 			{
-				ifsHayStack.seekg(-1, std::ios_base::cur);
+				ifsHayStack.seekg(-1, std::ios::cur);
 				std::cout << "Match Found At: " << ifsHayStack.tellg() << std::endl;
-				uintSkip = uintNeedleLength + 1;
-				ifsHayStack.seekg(uintSkip, std::ios_base::cur);
-				InTemp = nsNeedle->tail;
+
+				intCurrentFilePoisiton = (int)ifsHayStack.tellg();
+				if ((intCurrentFilePoisiton < intFinalSearchPosition) && (intCurrentFilePoisiton >= 0))
+				{
+					uintSkip = uintNeedleLength;
+					ifsHayStack.seekg(stpAncor);
+					ifsHayStack.seekg(uintSkip, std::ios::cur);
+					stpAncor = ifsHayStack.tellg();
+					InTemp = nsNeedle->tail;
+				}
+				else
+				{
+					blnEndSearch = true;
+				}
 			}
 		}
 		else
 		{
-			ifsHayStack.seekg(-1, std::ios_base::cur);
-			//std::cout << "Mis Match Now At: " << ifsHayStack.tellg() << std::endl;
-			uintSkip = uintBadMatchTable[int(tolower(chrHayStackChar)) -
-				int('a')];
-			ifsHayStack.seekg(uintSkip, std::ios_base::cur);
 
-			InTemp = nsNeedle->tail;
+			if (!blnMatchInProgress)
+			{
+				uintSkip = uintBadMatchTable[int(tolower(chrHayStackChar)) -
+				int('a')];
+				blnMatchInProgress = false;
+			}
+			else
+			{
+				uintSkip = uintBadMatchTable[int(tolower(chrSkipChar)) -
+					int('a')];
+			}
+
+			ifsHayStack.seekg(-1, std::ios_base::cur);
+			ifsHayStack.seekg(stpAncor);
+			intCurrentFilePoisiton = (int)ifsHayStack.tellg();
+			if ((intCurrentFilePoisiton < intFinalSearchPosition) && (intCurrentFilePoisiton >= 0))
+			{
+				ifsHayStack.seekg(stpAncor);
+				ifsHayStack.seekg(uintSkip, std::ios::cur);
+				stpAncor = ifsHayStack.tellg();
+				InTemp = nsNeedle->tail;
+			}
+			else
+			{
+				blnEndSearch = true;
+			}
+
 		}
 	}
 #else
