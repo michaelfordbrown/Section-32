@@ -1,26 +1,22 @@
 // AnagramGenerator.cpp : Defines the entry point for the console application.
 //
 
-/*
-Anagram Generator
-Write an application that generates all permutations for a given word or strPhrase and compares these permutations against a dictionary file. Assume that you have access to the dictionary file that contains all permisintStringIndexble words, one word per line. The application should be implemented to read the input word or strPhrase from the applications command line parameters and to write all valid anagrams, based on the dictionary file’s contents, to standard output.
-*/
-
-
 #include "stdafx.h"
 
-//#define _CRTDBG_MAP_ALLOC  
-//#include <stdlib.h>  
-//#include <crtdbg.h> 
+#define _CRTDBG_MAP_ALLOC  
+#include <stdlib.h>  
+#include <crtdbg.h> 
 
 #include <memory>
 #include <iostream>
 #include <fstream>
 #include <string.h>
 
+#include "DictionaryLookUp.h"
+
 #define MAX_STR 100
 #define LETTERSINALPHA 26
-#define MAX_DIC 50
+#define MAX_DIC 100
 
 using namespace std;
 
@@ -105,26 +101,26 @@ int CountChar(PhraseChar *objPhraseChar, const char *chrS, int intStrLen, int& i
 
 	for (int i = 0; i < intStrLen; i++)
 	{
-		if ((chrS[i] >= 'a') && (chrS[i] <= 'z'))
+		if ((tolower(chrS[i]) >= 'a') && (tolower( chrS[i]) <= 'z'))
 		{
 			if ((intPermIndex == 0) && (objPhraseChar[0].chrCharacter) == 0)
 			{
-				objPhraseChar[0].chrCharacter = chrS[i];
+				objPhraseChar[0].chrCharacter = tolower(chrS[i]);
 				objPhraseChar[0].intCount = 1;
 				intStringLevel = 1;
 				intCharCount = 1;
 			}
 			else
 			{
-				if (chrS[i] > objPhraseChar[intPermIndex].chrCharacter)
+				if (tolower(chrS[i]) > objPhraseChar[intPermIndex].chrCharacter)
 				{
 					intPermIndex++;
-					objPhraseChar[intPermIndex].chrCharacter = chrS[i];
+					objPhraseChar[intPermIndex].chrCharacter = tolower(chrS[i]);
 					objPhraseChar[intPermIndex].intCount = 1;
 					intStringLevel++;
 					intCharCount++;
 				}
-				else if (chrS[i] == objPhraseChar[intPermIndex].chrCharacter)
+				else if (tolower(chrS[i]) == objPhraseChar[intPermIndex].chrCharacter)
 				{
 					objPhraseChar[intPermIndex].intCount = objPhraseChar[intPermIndex].intCount + 1;
 					intStringLevel++;
@@ -154,12 +150,12 @@ void SortString(char *sortedstr, const char *unsortedstr, int strlen)
 	{
 		for (int j = 0; j < strlen - 1; j++)
 		{
-			if ((sortedstr[j] >= 'a') && (sortedstr[j] <= 'z'))
+			if ((tolower(sortedstr[j]) >= 'a') && (tolower(sortedstr[j]) <= 'z'))
 			{
-				if (sortedstr[j] > sortedstr[j + 1])
+				if (tolower(sortedstr[j]) > tolower(sortedstr[j + 1]))
 				{
-					tempchar = sortedstr[j];
-					sortedstr[j] = sortedstr[j + 1];
+					tempchar = tolower(sortedstr[j]);
+					sortedstr[j] = tolower(sortedstr[j + 1]);
 					sortedstr[j + 1] = tempchar;
 				}
 			}
@@ -224,72 +220,28 @@ void CheckPermutationsAgainstDictionary()
 		throw EXIT_FAILURE;
 	}
 
-	bool bPatternMatch = false;
-	int intDecCharIndex = 0;
+	int WordFoundArray[26] = { 0 };
+	WordList strWordFoundList[LETTERSINALPHA];
+	WordList strWordNotFoundList[LETTERSINALPHA];
 
-	//look through "dictionary" matching each permutation with read word from file
-	while (!dictionaryInfile.eof())
+	std::streampos stoPosition[LETTERSINALPHA] = { 0 };
+
+	permutationsInfile >> strPermutationWord;
+
+	while (!permutationsInfile.eof())
 	{
-		memset(strDicWord, 0, MAX_DIC);
-
-		dictionaryInfile >> strDicWord;
-		int intDicWordLen = strlen(strDicWord);
-
-		//cout << "Read Dic:" << strDicWord << endl;
-		bPatternMatch = false;
-		while (!permutationsInfile.eof() && (strlen(strDicWord) > 0) && !bPatternMatch)
-		{
-			memset(strPermutationWord, 0, intPhraseLength + 1);
-			permutationsInfile >> strPermutationWord;
-			int intPermWordLen = strlen(strPermutationWord);
-
-			intDecCharIndex = 0;
-			int intPermCharIndex = 0;
-			int intDecCharIndex = 0;
-
-			//cout << "Looking for pattern: " << strDicWord << " in string " << strPermutationWord << endl;
-
-			//Search Optimization: Only match when word length from dictionary is <= pattern
-			if (intDicWordLen <= intPermWordLen)
-			{
-				//Search Optimization: Only look up the Pattern when intStringIndexze >= Dictionary word 
-
-				for (intPermCharIndex = 0; intPermCharIndex <= (intPermWordLen - intDicWordLen); intPermCharIndex++)
-				{
-					for (intDecCharIndex = 0; (intDecCharIndex < intDicWordLen) && ((intPermCharIndex + intDecCharIndex) < intPermWordLen); intDecCharIndex++)
-					{
-						intMatchCount++;
-						if (strPermutationWord[intDecCharIndex + intPermCharIndex] != strDicWord[intDecCharIndex])
-						{
-							bPatternMatch = false;
-							break;
-						}
-					}
-					if (intDecCharIndex == intDicWordLen)
-					{
-						bPatternMatch = true;
-
-						if (bPatternMatch)
-						{
-							cout << "Dictionary Word[" << intDicIndex << "] " << strDicWord << " Matches strPhrase Word [" << intPermIndex << "]\t" << strPermutationWord << endl;
-							intMatchMade++;
-							break;
-						}
-					}
-				}
-			}
-
-			intPermIndex++;
-		}
-
-		permutationsInfile.clear();
-		permutationsInfile.seekg(0, ios::beg);
-
-		intPermIndex = 0;
-		intDicIndex++;
+		LookForWord(dictionaryInfile, stoPosition, strWordFoundList, strWordNotFoundList, strPermutationWord);
+		permutationsInfile >> strPermutationWord;
 	}
 
-	//close "Dictionary" file
+	std::cout << "\nWords Found List (Note: List for Each First Letter of Word Found)\n";
+	std::cout << "List\tAddr\t\tWord\t\tNextAddr\n";
+	for (int i = 0; i < LETTERSINALPHA; i++)
+	{
+		strWordFoundList[i].ShowListFromHead();
+	}
+
+	//close files
 	dictionaryInfile.close();
 	permutationsInfile.close();
 

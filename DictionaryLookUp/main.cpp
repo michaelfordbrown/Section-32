@@ -28,21 +28,23 @@ int main()
 	LookForWord(dictionaryInFile, stoPosition, strWordFoundList, strWordNotFoundList, "hello");
 	LookForWord(dictionaryInFile, stoPosition, strWordFoundList, strWordNotFoundList, "Qwebet");
 
-	std::cout << "\nWords Found\n";
-	std::cout << "Addr\t\tWord\tNextAddr\n";
+	std::cout << "\nWords Found List (Note: List for Each First Letter of Word Found)\n";
+	std::cout << "List\tAddr\t\tWord\t\tNextAddr\n";
 	for (int i = 0; i < MAXALPHA; i++)
 	{
 		strWordFoundList[i].showlistfromhead();
 	}
 
-	std::cout << "\nWords Not Found\n";
-	std::cout << "Addr\t\tWord\tNextAddr\n";
+	std::cout << "\nWords Not Found List(Note: List for Each First Letter of Word Not Found)\n";
+	std::cout << "List\tAddr\t\tWord\t\tNextAddr\n";
 	for (int i = 0; i < MAXALPHA; i++)
 	{
 		strWordNotFoundList[i].showlistfromhead();
 	}
 
 	dictionaryInFile.close();
+
+	getchar();
 
 	return EXIT_SUCCESS;
 }

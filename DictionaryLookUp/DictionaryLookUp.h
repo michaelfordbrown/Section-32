@@ -51,7 +51,7 @@ public:
 
 	void showlistfromhead();
 
-	bool searchlistfromhead(char* strWord);
+	bool blnSearchListFromHead(char* strWord);
 };
 
 bool OpenDictionaryFile(std::ifstream & dictionaryInFile, char* strFileName);

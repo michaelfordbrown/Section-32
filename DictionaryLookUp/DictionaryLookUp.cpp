@@ -29,6 +29,7 @@ void WordList::addnode(char* word)
 void WordList::showlistfromhead()
 {
 	Node *temp = head;
+	int iTest = 0;
 
 	if (temp != NULL)
 	{
@@ -36,7 +37,7 @@ void WordList::showlistfromhead()
 		{
 			if (strlen(temp->word) > 0)
 			{
-				std::cout << temp << "\t" << temp->word << "\t" << temp->next << "\n";
+				std::cout << char(int(tolower(temp->word[0]))) << "\t" << temp << "\t" << temp->word << "\t\t" << temp->next << "\n";
 			}
 			temp = temp->next;
 		}
@@ -49,6 +50,8 @@ bool WordList::searchlistfromhead(char* strWord)
 
 	while (index != NULL)
 	{
+		if (strcmp(strWord, "football") == 0)
+			;
 		if (strcmp(index->word, strWord) == 0)
 		{
 			return true;
@@ -124,6 +127,8 @@ bool CheckDictionary(std::ifstream & dictionaryInFile, char* strWord, std::strea
 			stpFilePos = dictionaryInFile.tellg();
 		}
 
+		if (strcmp(strWord, "football") == 0)
+			;
 		if (strcmp(strWord, strDicWord) == 0)
 		{
 			blnWordFound = true;
