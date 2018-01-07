@@ -12,6 +12,7 @@ struct Node
 	char word[MAXWORD] = { 0 };
 	// Location of Found word in HayStack (Dictionary)
 	std::streamoff stoIndex = 0;
+	int intIndex = 0;
 	Node* nodNext;
 };
 
@@ -59,4 +60,5 @@ public:
 bool blnOpenDictionaryFile(std::ifstream & dictionaryInFile, char* strFileName);
 bool blnCheckDictionary(std::ifstream & dictionaryInFile, char* strWord, std::streampos  *stoIndex);
 void LookForWord(std::ifstream & dictionaryInFile, std::streampos* stoPosition, WordList* strWordFoundList, WordList* strWordNotFoundList, char *strTestWord);
+
 

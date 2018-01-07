@@ -28,6 +28,12 @@
     <ClInclude Include="DictionaryLookUp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WordListClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HayStackClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -37,6 +43,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DictionaryLookUp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WordListClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HayStackClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

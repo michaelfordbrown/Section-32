@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define _CRTDBG_MAP_ALLOC  // Memory leek check mechanism 
+//#define _CRTDBG_MAP_ALLOC  // Memory leek check mechanism 
 #include <stdlib.h>  
 #include <crtdbg.h> 
 
@@ -51,9 +51,6 @@ bool WordList::blnSearchListFromHead(char* strWord)
 	// Start from the Head of the linked list
 	nodIndex = nodHead;
 
-	if (strcmp(strWord, "football") == 0)
-		std::cout << "Word Search: FootBall Search\n";
-
 	// Before getting to the end of the list . . 
 	while (nodIndex != NULL)
 	{
@@ -80,6 +77,8 @@ void addToWordList(WordList* list, char* word)
 
 bool blnOpenDictionaryFile(std::ifstream & dictionaryInFile, char* strFileName)
 {
+	char buf[MAXWORD];
+
 	dictionaryInFile.open(strFileName);
 
 	if (!dictionaryInFile)
@@ -88,6 +87,7 @@ bool blnOpenDictionaryFile(std::ifstream & dictionaryInFile, char* strFileName)
 		getchar();
 		return false;
 	}
+
 	return true;
 }
 
@@ -103,8 +103,9 @@ bool blnCheckDictionary(std::ifstream & dictionaryInFile, char* strWord, std::st
 	dictionaryInFile.seekg(0);
 
 	std::streampos stpFilePos = std::ios::beg;
-
+	
 	stpFilePos = dictionaryInFile.tellg();
+	
 	dictionaryInFile >> strDicWord;
 	for (size_t i = 0; i < strlen(strDicWord); i++)
 	{
@@ -112,37 +113,37 @@ bool blnCheckDictionary(std::ifstream & dictionaryInFile, char* strWord, std::st
 	}
 	chrDicChar = tolower(strDicWord[0]);
 
-	// DEBUG
-	if (strcmp(strWord, "football") == 0)
-		std::cout << "Dictionary Search: FootBall Search\n";
-
 	while ((!dictionaryInFile.eof()) && 
 		// OPTIMIZATION: Assuming that dictionary in alphabetical order no need to search beyond last word with same first letter 
 		(chrDicChar <= chrFirstChar) && 
 		// Continue search if Needle has not been found in HayStack(Dictionary)
 		(!blnWordFound))
 	{
-		//memset(strDicWord, 0, MAXWORD);
-
 		// When first time that first letter of Needle seen  . . .
 		if ((stoIndex[int(chrDicChar) - int('a')] == std::streampos(0)) && (chrDicChar > 'a'))
 		{
 			// Record HayStack(Dictionary) file position to record position of character in Found list
-			std::cout << "Words Starting with letter " << chrDicChar << " Located At: " << stpFilePos << std::endl;
-			stoIndex[int(chrDicChar) - int('a')] =
-				stpFilePos;
+			std::cout << "Words Starting with letter " << chrDicChar << "(" << strDicWord  << ")" << " Located At: " << stpFilePos << std::endl;
+			stoIndex[int(chrDicChar) - int('a')] = stpFilePos;
 		}
 		// Jump to position in HayStack(Dictionary) where the words start with same first character as Needle
 		else if (stpFilePos < (stoIndex[int(chrFirstChar) - int('a')]))
 		{
-			dictionaryInFile.seekg(stoIndex[chrFirstChar - int('a')]);
+			dictionaryInFile.clear();
+			if (chrFirstChar != 'p')
+				dictionaryInFile.seekg(stoIndex[chrFirstChar - int('a')]);
+			else
+				dictionaryInFile.seekg(263773);
+				//dictionaryInFile.seekg(263889);
 		}
 		// Progress through HayStack(Dictionary) while first character of words match
 
 		// Needle found in HayStack (Dictionary) . . .
-		//DEBUG
-		if (strcmp(strWord, "aaron") == 0)
-			std::cout << "Dic Search: aaron\n";
+
+		if (strcmp(strDicWord, "parse") == 0)
+			if (strcmp(strWord, "parse") == 0)
+				std::cout << "parse found\n";
+
 		if (strcmp(strWord, strDicWord) == 0)
 		{
 			blnWordFound = true;
@@ -150,6 +151,7 @@ bool blnCheckDictionary(std::ifstream & dictionaryInFile, char* strWord, std::st
 
 		stpFilePos = dictionaryInFile.tellg();
 		dictionaryInFile >> strDicWord;
+		//std::cout << dictionaryInFile.tellg() << "\t" << strDicWord << std::endl;
 		for (size_t i = 0; i < strlen(strDicWord); i++)
 		{
 			strDicWord[i] = tolower(strDicWord[i]);
@@ -162,6 +164,9 @@ bool blnCheckDictionary(std::ifstream & dictionaryInFile, char* strWord, std::st
 
 void LookForWord(std::ifstream & dictionaryInFile, std::streampos* stoPosition, WordList* strWordFoundList, WordList* strWordNotFoundList, char *strTestWord)
 {
+	if (strcmp(strTestWord, "parse") == 0)
+		std::cout << "Looking for parse\n";
+
 	// Found and Not Found is an array of list with each list member of array dedicated to a letter of alphabet
 	// (from first character of Needle word)
 	int intListIndex = int(tolower(strTestWord[0])) - int('a');
@@ -170,26 +175,27 @@ void LookForWord(std::ifstream & dictionaryInFile, std::streampos* stoPosition, 
 	if (!strWordFoundList[intListIndex].blnSearchListFromHead(strTestWord))
 	{
 		// Check if there has been an unsuccessful search for needle before (look in link list of not found words)
-		if (!strWordNotFoundList[intListIndex].blnSearchListFromHead(strTestWord))
-		{
+		// NOTE: not sure if not found list is necessary as permutations are alphabetically presented
+		//if (!strWordNotFoundList[intListIndex].blnSearchListFromHead(strTestWord))
+		//{
 			// Look through the Haystack (Dictionary) for the Needle
 			// If Needle found return position in dictionary file and add to Found list.
-			if (blnCheckDictionary(dictionaryInFile, strTestWord, stoPosition))
+			if (blnCheckDictionary(dictionaryInFile, strTestWord, stoPosition))			
 			{
-				std::cout << strTestWord << " found at: " << stoPosition[intListIndex] << std::endl;
+				std::cout << strTestWord << " found at: " << stoPosition[intListIndex] << " within the dictionary" << std::endl;
 				strWordFoundList[intListIndex].AddNode(strTestWord);
 			}
 			// If Needle not found then add to Not Found list.
 			else
 			{
-				strWordNotFoundList[intListIndex].AddNode(strTestWord);
+				//strWordNotFoundList[intListIndex].AddNode(strTestWord);
 			}
-		}
-		else
+		//}
+		//else
 		// If Needle already in Not Found list . . .
-		{
-			std::cout << strTestWord << " cannot be found in dictionary.\n";
-		}
+		//{
+		//	std::cout << strTestWord << " cannot be found in dictionary.\n";
+		//}
 	}
 	// If Needle already in Found list  . . .
 	else
