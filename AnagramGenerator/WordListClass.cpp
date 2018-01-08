@@ -8,7 +8,7 @@ WordListClass::WordListClass()
 
 	// Initialize WordList object
 	nodTemp = new Node();
-	memset(nodTemp->word, 0, MAXWORD);
+	memset(nodTemp->word, 0, MAXLISTWORD);
 	nodTemp->intIndex = 0;
 
 	// At the end of the list (next node is NULL)
@@ -70,7 +70,7 @@ void WordListClass::ShowListFromHead()
 	}
 }
 
-bool WordListClass::blnSearchListFromHead(char* strWord)
+bool WordListClass::blnSearchListFromHead(const char* strWord)
 {
 	// Start from the Head of the linked list
 	nodIndex = nodHead;

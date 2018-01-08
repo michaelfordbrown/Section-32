@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="DictionaryLookUp.h" />
     <ClInclude Include="HayStackClass.h" />
+    <ClInclude Include="NeedleClass.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WordListClass.h" />
@@ -156,6 +157,7 @@
     <ClCompile Include="AnagramGenerator.cpp" />
     <ClCompile Include="DictionaryLookUp.cpp" />
     <ClCompile Include="HayStackClass.cpp" />
+    <ClCompile Include="NeedleClass.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

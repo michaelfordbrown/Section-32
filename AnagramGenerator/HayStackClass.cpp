@@ -1,36 +1,32 @@
 #include "stdafx.h"
 #include "HayStackClass.h"
 
-
 HayStackClass::HayStackClass(char* strFileName)
 {
-	char buf[MAXWORD];
-
 	HayStackClass::ifsHayStack.open(strFileName);
 
 	if (!HayStackClass::ifsHayStack)
 	{
 		std::cout << "ERROR HayStack file failed to open!" << std::endl;
 		getchar();
-		throw(FILE_ERROR);
+		throw(HAYSTACK_FILE_ERROR);
 	}
 }
 
-
 HayStackClass::~HayStackClass()
 {
+	HayStackClass::ifsHayStack.close();
 }
-
 
 void HayStackClass::blnCloseHayStackFile()
 {
 	HayStackClass::ifsHayStack.close();
 }
 
-bool HayStackClass::blnCheckHayStackFile(char* strNeedle)
+bool HayStackClass::blnCheckHayStackFile(const char* strNeedle)
 {
 	bool blnWordFound = false;
-	char strHayThread[MAXWORD];
+	char strHayThread[MAXLISTWORD];
 
 	//HayStackClass:: stpHayStackFilePos = HayStackClass::ifsHayStack.tellg();
 	HayStackClass::ifsHayStack >> strHayThread;
@@ -46,15 +42,13 @@ bool HayStackClass::blnCheckHayStackFile(char* strNeedle)
 		// Continue search if Needle has not been found in HayStack(Dictionary)
 		(!blnWordFound))
 	{
-		//if(strHayThread[0] == strNeedle[0])
-			// Add straw to the straw list (words read from file) data structure (array of linked list)
-			wlcHayThreadListArray[int(strHayThread[0]) - int('a')].AddNode(strHayThread);
+		wlcHayThreadListArray[int(strHayThread[0]) - int('a')].AddNode(strHayThread);
 
 		// Has Needle been found in the HayStack
 		if (strcmp(strNeedle, strHayThread) == 0)
 		{
 			blnWordFound = true;
-			exit;
+			break;
 		}
 
 		HayStackClass::ifsHayStack >> strHayThread;
@@ -63,11 +57,10 @@ bool HayStackClass::blnCheckHayStackFile(char* strNeedle)
 			strHayThread[i] = tolower(strHayThread[i]);
 		}
 	}
-
 	return blnWordFound;
 }
 
-void HayStackClass::LookForNeedleInHayStack(char *strNeedle)
+void HayStackClass::LookForNeedleInHayStack(const char *strNeedle)
 {
 	// Check if needle has already been found (look in link list of found words)
 	if (!wlcHayThreadListArray[int(strNeedle[0]) - int('a')].blnSearchListFromHead(strNeedle))
